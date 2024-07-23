@@ -47,3 +47,39 @@ export const deletePassword = async function (host = "127.0.0.1", port = "8076",
         return '';
     }
 }
+
+export const generatePassword = async function (host = "127.0.0.1", port = "8076", service, length, humanized, symbols, numbers, lowercase, uppercase) {
+    const payload = {
+        service,
+        length,
+        humanized,
+        symbols,
+        numbers,
+        lowercase,
+        uppercase,
+    };
+    try {
+        const response = await axios.post(`https://${host}:${port}/generate`, payload, {
+            httpsAgent: {
+                rejectUnauthorized: false
+            },
+        });
+        return response.data.password;
+    } catch (error) {
+        console.error('Error generating password:', error.message);
+        return '';
+    }
+}
+
+export const insertPassword = async function (host = "127.0.0.1", port = "8076", service, content) {
+    try {
+        await axios.post(`https://${host}:${port}/insert`, {
+            service,
+            content
+        }, { httpsAgent: {
+                rejectUnauthorized: false
+            } });
+    } catch (error) {
+        return '';
+    }
+}

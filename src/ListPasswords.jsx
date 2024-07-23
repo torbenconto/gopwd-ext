@@ -2,8 +2,9 @@ import {decryptPassword, deletePassword, fetchPasswords} from "./util/api.js";
 import {useEffect, useState} from "react";
 import PasswordModal from "./PasswordModal.jsx";
 import ResultModal from "./ResultModal.jsx";
-import { FaFolder, FaKey, FaTrash } from 'react-icons/fa';
+import {FaFolder, FaKey, FaPlus, FaTrash} from 'react-icons/fa';
 import ConfirmDeleteModal from "./ConfirmDeleteModal.jsx";
+import AddModal from "./AddModal.jsx";
 
 function Directory({ directory, children, level }) {
     const [isOpen, setIsOpen] = useState(false);
@@ -31,6 +32,8 @@ function ListPasswords({ host, port }) {
     const [showModalOpen, setShowModalOpen] = useState(false);
     const [confirmDeleteModalOpen, setConfirmDeleteModalOpen] = useState(false);
     const [itemToDelete, setItemToDelete] = useState('');
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
 
     useEffect(() => {
         async function doFetchPasswords() {
@@ -54,13 +57,25 @@ function ListPasswords({ host, port }) {
         setConfirmDeleteModalOpen(true);
     };
 
+    const refreshPasswords = async () => {
+        const response = await fetchPasswords();
+        setPasswords(response);
+        const structure = buildDirectoryStructure(response);
+        setDirectoryStructure(structure);
+    }
+
     const confirmDelete = async () => {
         await deletePassword(host, port, itemToDelete);
         setConfirmDeleteModalOpen(false);
         // Refetch passwords to update the list
         const response = await fetchPasswords();
         setPasswords(response);
+        const structure = buildDirectoryStructure(response);
+        setDirectoryStructure(structure);
     };
+
+    const toggleAddModal = () => setIsAddModalOpen(!isAddModalOpen);
+
 
     function buildDirectoryStructure(passwords) {
         const root = {};
@@ -98,11 +113,12 @@ function ListPasswords({ host, port }) {
         if (contents.files) {
             contents.files.forEach(fullPath => {
                 elements.push(
-                    <div key={fullPath} className="flex items-center" style={{marginLeft: `${level * 20}px`}} onClick={() => handleFileClick(fullPath)}>
-                        <span className="mr-2"><FaKey /></span>
-                        {fullPath.split('/').pop()}
+                    <div key={fullPath} className="flex items-center px-4 py-2" style={{marginLeft: `${level * 20}px`}}
+                         onClick={() => handleFileClick(fullPath)}>
+                        <span className="mr-2"><FaKey/></span>
+                        <span className="truncate">{fullPath.split('/').pop()}</span>
                         <div className="ml-auto flex">
-                            <span onClick={(event) => handleDeleteClick(fullPath, event)}><FaTrash /></span>
+                            <span onClick={(event) => handleDeleteClick(fullPath, event)}><FaTrash/></span>
                         </div>
                     </div>
                 );
@@ -124,7 +140,7 @@ function ListPasswords({ host, port }) {
     }
 
     return (
-        <div className="bg-gopwd-gray">
+        <div className="bg-gopwd-gray scrollable-container">
             {renderDirectory(null, directoryStructure)}
             <PasswordModal
                 isOpen={passwordModalOpen}
@@ -143,6 +159,10 @@ function ListPasswords({ host, port }) {
                 onDelete={confirmDelete}
                 item={itemToDelete}
             />
+            <div className="fixed right-1 bottom-1 text-xl p-4" onClick={toggleAddModal}>
+                <FaPlus />
+            </div>
+            <AddModal isOpen={isAddModalOpen} onClose={() => {setIsAddModalOpen(false); refreshPasswords()}} />
         </div>
     );
 }
