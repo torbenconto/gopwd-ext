@@ -1,11 +1,11 @@
 {
-  "name": "First Extensions",
-  "description": "Basic Chrome Extension",
+  "name": "gopwd",
+  "description": "Gopwd binding for the browser",
   "version": "1.0",
   "manifest_version": 2,
   "browser_action": {
     "default_popup": "index.html",
-    "default_title": "My first extension"
+    "default_title": "gopwd"
   },
   "browser_specific_settings": {
     "gecko": {
@@ -13,9 +13,9 @@
     }
   },
   "icons": {
-    "16": "react.png",
-    "48": "react.png",
-    "128": "react.png"
+    "16": "gopwd.png",
+    "48": "gopwd.png",
+    "128": "gopwd.png"
   },
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
 }
